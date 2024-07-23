@@ -28,7 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _refreshTime() {
-    var now = DateTime.now().add(const Duration(hours: 8)).toString();
+    var now = DateTime.now().toString();
     var newTime = now.substring(11, 19);
     if (newTime != _timeString) {
       setState(() {
