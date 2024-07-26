@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:raw_gnss/gnss_status_model.dart';
@@ -18,7 +20,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _gnss = RawGnss();
-
+    if (!Platform.isAndroid) {
+      setState(() => _hasPermissions = false);
+      return;
+    }
     Permission.location
         .request()
         .then((value) => setState(() => _hasPermissions = value.isGranted));
@@ -32,35 +37,36 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            !_hasPermissions
-                ? const Text('No permissions for gnssMeasurement')
-                : StreamBuilder(
-                    stream: _gnss.gnssMeasurementEvents,
-                    builder: (context, snapshot) {
-                      var reportTime = DateTime.now();
-                      if (!snapshot.hasData) {
-                        return const CircularProgressIndicator();
-                      }
-                      var clock = snapshot.data!.clock!;
-                      return Column(
-                        children: [
-                          const Text('协调世界时:'),
-                          Text(
-                            _getGPSTime(clock.timeNanos!, clock.fullBiasNanos!,
-                                clock.biasNanos!, reportTime),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 25),
-                          ),
-                        ],
-                      );
-                      // return Text(' ${snapshot.data!.string}');
-                    }),
-            !_hasPermissions
-                ? const Text('No permissions for gnssStatus')
-                : StreamBuilder(
+        child: !_hasPermissions
+            ? Text(Platform.isAndroid ? '无权限' : '平台不支持')
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StreamBuilder(
+                      stream: _gnss.gnssMeasurementEvents,
+                      builder: (context, snapshot) {
+                        var reportTime = DateTime.now();
+                        if (!snapshot.hasData) {
+                          return const CircularProgressIndicator();
+                        }
+                        var clock = snapshot.data!.clock!;
+                        return Column(
+                          children: [
+                            const Text('协调世界时:'),
+                            Text(
+                              _getGPSTime(
+                                  clock.timeNanos!,
+                                  clock.fullBiasNanos!,
+                                  clock.biasNanos!,
+                                  reportTime),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 25),
+                            ),
+                          ],
+                        );
+                        // return Text(' ${snapshot.data!.string}');
+                      }),
+                  StreamBuilder(
                     stream: _gnss.gnssStatusEvents,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
@@ -85,9 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       );
                     },
-                  ),
-          ],
-        ),
+                  )
+                ],
+              ),
       ),
     );
   }
