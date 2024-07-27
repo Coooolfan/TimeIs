@@ -14,8 +14,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var _offset = 0;
+  var _currentTimeString = DateTime.now().toString();
   var _hasPermissions = false;
   late RawGnss _gnss;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +30,22 @@ class _MyHomePageState extends State<MyHomePage> {
     Permission.location
         .request()
         .then((value) => setState(() => _hasPermissions = value.isGranted));
+    _updateCurrentTimeString();
+  }
+
+  // 创建一个计时器，以尽可能短的时间间隔更新UI
+  void _updateCurrentTimeString() {
+    Future.delayed(const Duration(), () {
+      if (mounted) {
+        if (_offset != 0) {
+          setState(() {
+            _currentTimeString =
+                DateTime.now().add(Duration(milliseconds: _offset)).toString();
+          });
+        }
+        _updateCurrentTimeString();
+      }
+    });
   }
 
   @override
@@ -52,7 +71,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         var clock = snapshot.data!.clock!;
                         return Column(
                           children: [
-                            const Text('协调世界时:'),
+                            const Text('当地时间:'),
+                            SizedBox(
+                              width: 800, // 设置一个固定宽度
+                              child: Text(
+                                _currentTimeString,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25,
+                                ),
+                                textAlign: TextAlign.start, // 可选：使文本居中
+                              ),
+                            ),
+                            const Text('上次获取到的协调世界时:'),
                             Text(
                               _getGPSTime(
                                   clock.timeNanos!,
@@ -100,11 +131,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _getGPSTime(
       int timeNanos, int fullBiasNanos, double biasNanos, DateTime reportTime) {
-    var offset = DateTime.utc(1980, 1, 6);
+    var offsetGPS = DateTime.utc(1980, 1, 6);
     var timeStampGPS = timeNanos - (fullBiasNanos + biasNanos);
-    var dateTimeGPS = offset.add(Duration(microseconds: timeStampGPS ~/ 1000));
-    dateTimeGPS = dateTimeGPS.subtract(const Duration(seconds: 18));
-    dateTimeGPS = dateTimeGPS.add(DateTime.now().difference(reportTime));
+    var dateTimeGPS = offsetGPS
+        .add(Duration(microseconds: timeStampGPS ~/ 1000)) // 除以1000转换为毫秒, 加上偏移量
+        .subtract(
+            const Duration(seconds: 18)); // 减去18秒，GPS时间比UTC时间慢18秒 -2024-7-27
+    if (_offset == 0) {
+      _offset = reportTime.difference(dateTimeGPS).inMilliseconds;
+      print("_offset:$_offset");
+    }
     return dateTimeGPS.toString();
   }
 
