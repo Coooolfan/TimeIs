@@ -1,4 +1,4 @@
-package com.example.time_is
+package com.coooolfan.time_is
 
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity

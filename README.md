@@ -2,9 +2,11 @@
 
 <div align=center><img src="img/TimeIs.png" width="100"/></div>
 
+一个简单的Flutter应用，展示卫星授时的结果。
+
 # 截图
 
-<center>
+<center class="half">
     <img src="img/S40728-16210308.png" width="200"/><img src="img/S40728-16243791.png" width="200"/>
 </center>
 
@@ -16,13 +18,21 @@
 
 ### 当前时间
 
-不知道为啥，不同设备的时间显示不一致，大多在100ms左右。
+实时显示当前时间。
 
 ### 上次获取到的世界协调时
 
-数据来自卫星，不同设备的偏差在10ms以内。
+来自卫星的数据是不连续的，此处展示的是上次获取的时间转换为世界协调时间的结果。
 
-## Getting Started
+### ⚠️注意⚠️
+
+坦率地说，这个东西没有什么用，因为它得到的时间在不同设备上总是有**几十毫秒的偏差**，我也不知道为什么。🤣如果你能接收这个级别的误差，我想它是为数不多的能够提供卫星授时的程序。
+
+### TODO
+
+- 提供NTP服务，用于局域网设备的时间同步
+
+### Getting Started
 
 This project is a starting point for a Flutter application.
 
