@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:raw_gnss/gnss_status_model.dart';
 import 'package:raw_gnss/raw_gnss.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -48,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
           .add(Duration(
               microseconds: timeStampGPS ~/ 1000)) // 除以1000转换为毫秒, 加上偏移量
           .subtract(
-              const Duration(seconds: 18)); // 减去18秒，GPS时间比UTC时间慢18秒 -2024-7-27
+              const Duration(seconds: 18)); // 同步闰秒 减去18秒，GPS时间比UTC时间慢18秒 -2024-7-27
       setState(() {
         _lastReportTime = reportTime;
         _lastGPSFixTime = dateTimeGPS;
@@ -81,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _updateCurrentTimeString() {
     Future.delayed(const Duration(), () {
       if (mounted) {
-        if(_hasPermissions && !_registerredListener) {
+        if (_hasPermissions && !_registerredListener) {
           _registerListener();
           _registerredListener = true;
         }
@@ -124,11 +123,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   const Text("当前时间:"),
                   Text(_currentTime.toString(),
                       style: const TextStyle(
+                          fontWeight: FontWeight.bold,
                           fontFeatures: [FontFeature.tabularFigures()])),
                   Text("设备时间的偏移值：$_offset 毫秒"),
                   const Text("上次获取到的世界协调时: "),
                   Text(_lastGPSFixTime.toString(),
                       style: const TextStyle(
+                          fontWeight: FontWeight.bold,
                           fontFeatures: [FontFeature.tabularFigures()])),
                   const Divider(),
                   Text("可见卫星数量: $_satelliteCount"),
@@ -145,24 +146,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-  int _getFixedSatellites(GnssStatusModel gnssStatusModel) {
-    var fixedSatellites = 0;
-    for (var i = 0; i < gnssStatusModel.satelliteCount!; i++) {
-      if (gnssStatusModel.status![i].usedInFix!) {
-        fixedSatellites++;
-      }
-    }
-    return fixedSatellites;
-  }
-
-  // Map _getConstellationTypes(GnssStatusModel gnssStatusModel) {
-  //   for (var i = 0; i < gnssStatusModel.satelliteCount!; i++) {
-  //     constellationTypesMap[gnssStatusModel.status![i].constellationType!] =
-  //         constellationTypesMap[
-  //                 gnssStatusModel.status![i].constellationType!]! +
-  //             1;
-  //   }
-  //   return constellationTypesMap;
-  // }
 }
