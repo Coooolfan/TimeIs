@@ -15,6 +15,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _offset = 0;
+  var _registerredListener = false;
   var _currentTime = DateTime.now();
   var _lastReportTime = DateTime.now();
   var _lastGPSFixTime = DateTime.now();
@@ -34,7 +35,9 @@ class _MyHomePageState extends State<MyHomePage> {
         .request()
         .then((value) => setState(() => _hasPermissions = value.isGranted));
     _updateCurrentTimeString();
+  }
 
+  void _registerListener() {
     RawGnss().gnssMeasurementEvents.listen((e) {
       var reportTime = DateTime.now();
       var clock = e.clock!;
@@ -78,6 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void _updateCurrentTimeString() {
     Future.delayed(const Duration(), () {
       if (mounted) {
+        if(_hasPermissions && !_registerredListener) {
+          _registerListener();
+          _registerredListener = true;
+        }
         if (_offset != 0) {
           setState(() {
             _unavailable = _lastGPSFixTime.year != _lastReportTime.year;
