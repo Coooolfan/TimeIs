@@ -1,6 +1,26 @@
-# time_is
+# TimeIs
 
-A new Flutter project.
+<div align=center><img src="img/TimeIs.png" width="100"/></div>
+
+# 截图
+
+<center>
+    <img src="img/S40728-16210308.png" width="200"/><img src="img/S40728-16243791.png" width="200"/>
+</center>
+
+## 介绍
+
+**仅支持Android。**
+
+由Flutter编写的一个简单的显示当前时间和日期的应用。时间是从GNSS服务获取，来自于卫星数据。
+
+### 当前时间
+
+不知道为啥，不同设备的时间显示不一致，大多在100ms左右。
+
+### 上次获取到的世界协调时
+
+数据来自卫星，不同设备的偏差在10ms以内。
 
 ## Getting Started
 
